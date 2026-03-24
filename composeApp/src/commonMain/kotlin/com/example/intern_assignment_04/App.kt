@@ -1,47 +1,169 @@
 package com.example.intern_assignment_04
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
+import androidx.compose.ui.unit.dp
+import com.example.intern_assignment_04.feature.stopwatch.StopwatchScreen
+import com.example.intern_assignment_04.feature.stopwatch.StopwatchViewModel
+import com.example.intern_assignment_04.feature.timer.TimerScreen
+import com.example.intern_assignment_04.feature.timer.TimerViewModel
+import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import internassignment04.composeapp.generated.resources.Res
-import internassignment04.composeapp.generated.resources.compose_multiplatform
+import internassignment04.composeapp.generated.resources.timer
+import internassignment04.composeapp.generated.resources.timer_sec
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import kotlin.time.Clock
 
 @Composable
 @Preview
 fun App() {
+    val formatTimeUseCase = remember { FormatTimeUseCase() }
+    val nowMillis = remember { { Clock.System.now().toEpochMilliseconds() } }
+    val timerViewModel = remember {
+        TimerViewModel(
+            formatTimeUseCase = formatTimeUseCase,
+            nowMillis = nowMillis,
+        )
+    }
+    val stopwatchViewModel = remember {
+        StopwatchViewModel(
+            formatTimeUseCase = formatTimeUseCase,
+            nowMillis = nowMillis,
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            timerViewModel.clear()
+            stopwatchViewModel.clear()
+        }
+    }
+
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
+        var selectedTabIndex by remember { mutableStateOf(0) }
+        val tabs = listOf(
+            NavBarTab(
+                title = "Таймер",
+                icon = Res.drawable.timer,
+            ),
+            NavBarTab(
+                title = "Секундомер",
+                icon = Res.drawable.timer_sec,
+            ),
+        )
+
+        Box(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .background(Color.White)
+                .safeContentPadding(),
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 100.dp),
+            ) {
+                when (selectedTabIndex) {
+                    0 -> TimerScreen(
+                        timerViewModel = timerViewModel,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+
+                    else -> StopwatchScreen(
+                        stopwatchViewModel = stopwatchViewModel,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+
+            BottomCenterNavbar(
+                tabs = tabs,
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = { selectedTabIndex = it },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp),
+            )
+        }
+    }
+}
+
+private data class NavBarTab(
+    val title: String,
+    val icon: DrawableResource,
+)
+
+@Composable
+private fun BottomCenterNavbar(
+    tabs: List<NavBarTab>,
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFFF1F1F1))
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        tabs.forEachIndexed { index, tab ->
+            val isSelected = index == selectedTabIndex
+            val itemBg = if (isSelected) Color.White else Color.Transparent
+            val itemTextColor = if (isSelected) Color.Black else Color(0xFF707070)
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(itemBg)
+                    .clickable { onTabSelected(index) }
+                    .widthIn(min = 120.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+                    Image(
+                        painter = painterResource(tab.icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        colorFilter = ColorFilter.tint(itemTextColor),
+                    )
+                    Text(
+                        text = tab.title,
+                        color = itemTextColor,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
                 }
             }
         }

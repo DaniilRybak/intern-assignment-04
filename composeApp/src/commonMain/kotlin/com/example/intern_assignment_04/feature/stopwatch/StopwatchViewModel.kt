@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -31,6 +32,10 @@ internal class StopwatchViewModel(
     private var startedAtMillis: Long = 0L
     private var elapsedAtStartMillis: Long = 0L
 
+    private companion object {
+        private const val TICK_INTERVAL_MILLIS = 16L
+    }
+
     fun start() {
         if (tickerJob?.isActive == true) {
             return
@@ -48,11 +53,17 @@ internal class StopwatchViewModel(
 
         tickerJob = scope.launch {
             while (isActive) {
-                delay(1000L)
-                mutableState.value = StopwatchState.Running(
-                    elapsedTimeMillis = currentElapsedMillis(),
-                    laps = mutableState.value.laps,
-                )
+                delay(TICK_INTERVAL_MILLIS)
+                mutableState.update { currentState ->
+                    when (currentState) {
+                        is StopwatchState.Running -> currentState.copy(
+                            elapsedTimeMillis = currentElapsedMillis(currentState),
+                        )
+
+                        is StopwatchState.Idle -> currentState
+                        is StopwatchState.Paused -> currentState
+                    }
+                }
             }
         }
     }
@@ -82,35 +93,40 @@ internal class StopwatchViewModel(
     }
 
     fun recordLap() {
-        if (mutableState.value !is StopwatchState.Running) {
-            return
+        mutableState.update { currentState ->
+            if (currentState !is StopwatchState.Running) {
+                return@update currentState
+            }
+
+            val totalElapsedMillis = currentElapsedMillis(currentState)
+            val previousLapTotalMillis = currentState.laps.lastOrNull()?.totalElapsedMillis ?: 0L
+            val nextLap = LapTime(
+                lapNumber = currentState.laps.size + 1,
+                lapDurationMillis = (totalElapsedMillis - previousLapTotalMillis).coerceAtLeast(0L),
+                totalElapsedMillis = totalElapsedMillis,
+            )
+
+            currentState.copy(
+                elapsedTimeMillis = totalElapsedMillis,
+                laps = currentState.laps + nextLap,
+            )
         }
-
-        val totalElapsedMillis = currentElapsedMillis()
-        val currentLaps = mutableState.value.laps
-        val previousLapTotalMillis = currentLaps.lastOrNull()?.totalElapsedMillis ?: 0L
-        val nextLap = LapTime(
-            lapNumber = currentLaps.size + 1,
-            lapDurationMillis = (totalElapsedMillis - previousLapTotalMillis).coerceAtLeast(0L),
-            totalElapsedMillis = totalElapsedMillis,
-        )
-
-        mutableState.value = StopwatchState.Running(
-            elapsedTimeMillis = totalElapsedMillis,
-            laps = currentLaps + nextLap,
-        )
     }
 
-    fun formatElapsedTime(): String = formatTimeUseCase(currentElapsedMillis())
+    fun formatElapsedTime(elapsedMillis: Long): String = formatTimeUseCase(elapsedMillis)
+
+    fun formatElapsedTime(): String = formatElapsedTime(currentElapsedMillis())
 
     fun clear() {
         scope.cancel()
     }
 
-    private fun currentElapsedMillis(): Long {
-        return when (val currentState = mutableState.value) {
-            is StopwatchState.Idle -> currentState.elapsedTimeMillis
-            is StopwatchState.Paused -> currentState.elapsedTimeMillis
+    private fun currentElapsedMillis(
+        state: StopwatchState = mutableState.value,
+    ): Long {
+        return when (state) {
+            is StopwatchState.Idle -> state.elapsedTimeMillis
+            is StopwatchState.Paused -> state.elapsedTimeMillis
             is StopwatchState.Running -> elapsedAtStartMillis + (nowMillis() - startedAtMillis)
         }
     }
