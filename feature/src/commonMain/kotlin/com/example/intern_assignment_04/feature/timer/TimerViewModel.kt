@@ -79,7 +79,7 @@ class TimerViewModel(
         }
     }
 
-    override fun stop() {
+    override fun pause() {
         val remainingMillis = currentRemainingMillis()
         tickerJob?.cancel()
         tickerJob = null

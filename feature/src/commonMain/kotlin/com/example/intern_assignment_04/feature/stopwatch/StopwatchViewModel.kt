@@ -68,7 +68,7 @@ class StopwatchViewModel(
         }
     }
 
-    fun stop() {
+    fun pause() {
         val elapsedMillis = currentElapsedMillis()
         val laps = mutableState.value.laps
 

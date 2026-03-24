@@ -31,8 +31,8 @@ import com.example.intern_assignment_04.model.domain.LapTime
 import com.example.intern_assignment_04.model.domain.StopwatchState
 import internassignment04.feature.generated.resources.Res
 import internassignment04.feature.generated.resources.action_reset
+import internassignment04.feature.generated.resources.action_pause
 import internassignment04.feature.generated.resources.action_start
-import internassignment04.feature.generated.resources.action_stop
 import internassignment04.feature.generated.resources.stopwatch_lap_button
 import internassignment04.feature.generated.resources.stopwatch_lap_label
 import org.jetbrains.compose.resources.stringResource
@@ -44,8 +44,8 @@ fun StopwatchScreen(
 ) {
     val lapButtonText = stringResource(Res.string.stopwatch_lap_button)
     val actionReset = stringResource(Res.string.action_reset)
+    val actionPause = stringResource(Res.string.action_pause)
     val actionStart = stringResource(Res.string.action_start)
-    val actionStop = stringResource(Res.string.action_stop)
 
     val state by stopwatchViewModel.state.collectAsState()
     val isRunning = state is StopwatchState.Running
@@ -98,8 +98,8 @@ fun StopwatchScreen(
             }
 
             CircleActionButton(
-                text = if (isRunning) actionStop else actionStart,
-                onClick = if (isRunning) stopwatchViewModel::stop else stopwatchViewModel::start,
+                text = if (isRunning) actionPause else actionStart,
+                onClick = if (isRunning) stopwatchViewModel::pause else stopwatchViewModel::start,
                 enabled = true,
                 circleSize = circleSize,
                 containerColor = if (isRunning) {

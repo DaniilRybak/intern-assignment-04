@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_start">Пуск</string>
-    <string name="action_stop">Стоп</string>
+    <string name="action_pause">Пауза</string>
     <string name="action_reset">Сброс</string>
 
     <string name="timer_set_time_title">Установите время</string>
@@ -14,4 +14,3 @@
     <string name="timer_finished_notification_title">Таймер завершен</string>
     <string name="timer_finished_notification_body">Время вышло.</string>
 </resources>
-

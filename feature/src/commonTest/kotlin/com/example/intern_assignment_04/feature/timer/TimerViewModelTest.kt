@@ -59,7 +59,7 @@ class TimerViewModelTest {
             now = 2_000L
             tick(2_000L)
 
-            viewModel.stop()
+            viewModel.pause()
             val pausedState = assertIs<TimerState.Paused>(viewModel.state.value)
             assertEquals(3_000L, pausedState.remainingTimeMillis)
 

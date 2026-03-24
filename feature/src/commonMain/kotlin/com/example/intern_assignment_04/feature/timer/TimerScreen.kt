@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.example.intern_assignment_04.model.domain.TimerState
 import internassignment04.feature.generated.resources.Res
 import internassignment04.feature.generated.resources.action_reset
+import internassignment04.feature.generated.resources.action_pause
 import internassignment04.feature.generated.resources.action_start
-import internassignment04.feature.generated.resources.action_stop
 import internassignment04.feature.generated.resources.timer_finished_notification_body
 import internassignment04.feature.generated.resources.timer_finished_notification_title
 import internassignment04.feature.generated.resources.timer_seconds_label
@@ -56,8 +56,8 @@ fun TimerScreen(
     val notifier = rememberTimerCompletionNotifier()
     val titleSetTime = stringResource(Res.string.timer_set_time_title)
     val actionReset = stringResource(Res.string.action_reset)
+    val actionPause = stringResource(Res.string.action_pause)
     val actionStart = stringResource(Res.string.action_start)
-    val actionStop = stringResource(Res.string.action_stop)
     val notificationTitle = stringResource(Res.string.timer_finished_notification_title)
     val notificationBody = stringResource(Res.string.timer_finished_notification_body)
 
@@ -194,10 +194,10 @@ fun TimerScreen(
             )
 
             CircleActionButton(
-                text = if (isRunning) actionStop else actionStart,
+                text = if (isRunning) actionPause else actionStart,
                 onClick = {
                     if (isRunning) {
-                        timerViewModel.stop()
+                        timerViewModel.pause()
                     } else {
                         val durationMillis = if (state is TimerState.Paused) 0L else selectedDurationMillis
                         timerViewModel.start(durationMillis)
