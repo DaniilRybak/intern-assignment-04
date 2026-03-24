@@ -34,10 +34,14 @@ import com.example.intern_assignment_04.feature.timer.TimerScreen
 import com.example.intern_assignment_04.feature.timer.TimerViewModel
 import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import internassignment04.composeapp.generated.resources.Res
+import internassignment04.composeapp.generated.resources.nav_stopwatch
+import internassignment04.composeapp.generated.resources.nav_timer
 import internassignment04.composeapp.generated.resources.timer
 import internassignment04.composeapp.generated.resources.timer_sec
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
 @Composable
@@ -68,11 +72,11 @@ fun App() {
         var selectedTabIndex by remember { mutableStateOf(0) }
         val tabs = listOf(
             NavBarTab(
-                title = "Таймер",
+                title = Res.string.nav_timer,
                 icon = Res.drawable.timer,
             ),
             NavBarTab(
-                title = "Секундомер",
+                title = Res.string.nav_stopwatch,
                 icon = Res.drawable.timer_sec,
             ),
         )
@@ -114,7 +118,7 @@ fun App() {
 }
 
 private data class NavBarTab(
-    val title: String,
+    val title: StringResource,
     val icon: DrawableResource,
 )
 
@@ -134,6 +138,7 @@ private fun BottomCenterNavbar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         tabs.forEachIndexed { index, tab ->
+            val tabTitle = stringResource(tab.title)
             val isSelected = index == selectedTabIndex
             val itemBg = if (isSelected) Color.White else Color.Transparent
             val itemTextColor = if (isSelected) Color.Black else Color(0xFF707070)
@@ -158,7 +163,7 @@ private fun BottomCenterNavbar(
                         colorFilter = ColorFilter.tint(itemTextColor),
                     )
                     Text(
-                        text = tab.title,
+                        text = tabTitle,
                         color = itemTextColor,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,

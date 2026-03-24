@@ -36,6 +36,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intern_assignment_04.model.domain.TimerState
+import internassignment04.composeapp.generated.resources.Res
+import internassignment04.composeapp.generated.resources.action_reset
+import internassignment04.composeapp.generated.resources.action_start
+import internassignment04.composeapp.generated.resources.action_stop
+import internassignment04.composeapp.generated.resources.timer_seconds_label
+import internassignment04.composeapp.generated.resources.timer_seconds_placeholder
+import internassignment04.composeapp.generated.resources.timer_set_time_title
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +51,11 @@ internal fun TimerScreen(
     timerViewModel: TimerViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val titleSetTime = stringResource(Res.string.timer_set_time_title)
+    val actionReset = stringResource(Res.string.action_reset)
+    val actionStart = stringResource(Res.string.action_start)
+    val actionStop = stringResource(Res.string.action_stop)
+
     val state by timerViewModel.state.collectAsState()
     val isRunning = state is TimerState.Running
     val showPicker = state is TimerState.Idle || state is TimerState.Finished
@@ -92,7 +105,7 @@ internal fun TimerScreen(
         ) {
             if (showPicker) {
                 Text(
-                    text = "Установите время",
+                    text = titleSetTime,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -152,7 +165,7 @@ internal fun TimerScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CircleActionButton(
-                text = "Сброс",
+                text = actionReset,
                 onClick = { timerViewModel.reset() },
                 enabled = state !is TimerState.Idle || selectedDurationMillis > 0L,
                 circleSize = 80.dp,
@@ -161,7 +174,7 @@ internal fun TimerScreen(
             )
 
             CircleActionButton(
-                text = if (isRunning) "Стоп" else "Пуск",
+                text = if (isRunning) actionStop else actionStart,
                 onClick = {
                     if (isRunning) {
                         timerViewModel.stop()
@@ -189,13 +202,16 @@ private fun SecondsField(
     onSecondsInputChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val secondsLabel = stringResource(Res.string.timer_seconds_label)
+    val secondsPlaceholder = stringResource(Res.string.timer_seconds_placeholder)
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "Секунды",
+            text = secondsLabel,
             style = MaterialTheme.typography.titleMedium,
         )
 
@@ -205,7 +221,7 @@ private fun SecondsField(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.size(width = 96.dp, height = 56.dp),
-            placeholder = { Text("0") },
+            placeholder = { Text(secondsPlaceholder) },
         )
     }
 }

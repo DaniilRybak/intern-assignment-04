@@ -1,6 +1,5 @@
 package com.example.intern_assignment_04.feature.stopwatch
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,12 +29,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intern_assignment_04.model.domain.LapTime
 import com.example.intern_assignment_04.model.domain.StopwatchState
+import internassignment04.composeapp.generated.resources.Res
+import internassignment04.composeapp.generated.resources.action_reset
+import internassignment04.composeapp.generated.resources.action_start
+import internassignment04.composeapp.generated.resources.action_stop
+import internassignment04.composeapp.generated.resources.stopwatch_lap_button
+import internassignment04.composeapp.generated.resources.stopwatch_lap_label
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun StopwatchScreen(
     stopwatchViewModel: StopwatchViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val lapButtonText = stringResource(Res.string.stopwatch_lap_button)
+    val actionReset = stringResource(Res.string.action_reset)
+    val actionStart = stringResource(Res.string.action_start)
+    val actionStop = stringResource(Res.string.action_stop)
+
     val state by stopwatchViewModel.state.collectAsState()
     val isRunning = state is StopwatchState.Running
     val circleSize = 80.dp
@@ -68,7 +79,7 @@ internal fun StopwatchScreen(
         ) {
             if (isRunning) {
                 CircleActionButton(
-                    text = "Круг",
+                    text = lapButtonText,
                     onClick = stopwatchViewModel::recordLap,
                     enabled = true,
                     circleSize = circleSize,
@@ -77,7 +88,7 @@ internal fun StopwatchScreen(
                 )
             } else {
                 CircleActionButton(
-                    text = "Сброс",
+                    text = actionReset,
                     onClick = stopwatchViewModel::reset,
                     enabled = state.elapsedTimeMillis > 0L || state.laps.isNotEmpty(),
                     circleSize = circleSize,
@@ -87,7 +98,7 @@ internal fun StopwatchScreen(
             }
 
             CircleActionButton(
-                text = if (isRunning) "Стоп" else "Пуск",
+                text = if (isRunning) actionStop else actionStart,
                 onClick = if (isRunning) stopwatchViewModel::stop else stopwatchViewModel::start,
                 enabled = true,
                 circleSize = circleSize,
@@ -149,6 +160,8 @@ private fun CircleActionButton(
 
 @Composable
 private fun LapRow(lap: LapTime) {
+    val lapLabel = stringResource(Res.string.stopwatch_lap_label, lap.lapNumber)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,7 +175,7 @@ private fun LapRow(lap: LapTime) {
             },
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(text = "Круг ${lap.lapNumber}")
+        Text(text = lapLabel)
         Text(text = formatMillisWithCentiseconds(lap.lapDurationMillis))
     }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_timer">Timer</string>
+    <string name="nav_stopwatch">Stopwatch</string>
+
+    <string name="action_start">Start</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_reset">Reset</string>
+
+    <string name="timer_set_time_title">Set time</string>
+    <string name="timer_seconds_label">Seconds</string>
+    <string name="timer_seconds_placeholder">0</string>
+
+    <string name="stopwatch_lap_button">Lap</string>
+    <string name="stopwatch_lap_label">Lap %1$d</string>
+</resources>
+
