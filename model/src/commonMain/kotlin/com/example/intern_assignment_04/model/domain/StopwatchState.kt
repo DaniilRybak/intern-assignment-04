@@ -1,6 +1,6 @@
 package com.example.intern_assignment_04.model.domain
 
-internal sealed class StopwatchState {
+sealed class StopwatchState {
     abstract val elapsedTimeMillis: Long
     abstract val laps: List<LapTime>
 
@@ -19,4 +19,3 @@ internal sealed class StopwatchState {
         override val laps: List<LapTime>,
     ) : StopwatchState()
 }
-

@@ -1,6 +1,6 @@
 package com.example.intern_assignment_04.model.domain
 
-internal sealed class TimerState {
+sealed class TimerState {
     abstract val totalTimeMillis: Long
     abstract val remainingTimeMillis: Long
 
@@ -24,4 +24,3 @@ internal sealed class TimerState {
         override val remainingTimeMillis: Long = 0L,
     ) : TimerState()
 }
-

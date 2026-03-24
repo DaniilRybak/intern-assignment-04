@@ -36,30 +36,50 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intern_assignment_04.model.domain.TimerState
-import internassignment04.composeapp.generated.resources.Res
-import internassignment04.composeapp.generated.resources.action_reset
-import internassignment04.composeapp.generated.resources.action_start
-import internassignment04.composeapp.generated.resources.action_stop
-import internassignment04.composeapp.generated.resources.timer_seconds_label
-import internassignment04.composeapp.generated.resources.timer_seconds_placeholder
-import internassignment04.composeapp.generated.resources.timer_set_time_title
+import internassignment04.feature.generated.resources.Res
+import internassignment04.feature.generated.resources.action_reset
+import internassignment04.feature.generated.resources.action_start
+import internassignment04.feature.generated.resources.action_stop
+import internassignment04.feature.generated.resources.timer_finished_notification_body
+import internassignment04.feature.generated.resources.timer_finished_notification_title
+import internassignment04.feature.generated.resources.timer_seconds_label
+import internassignment04.feature.generated.resources.timer_seconds_placeholder
+import internassignment04.feature.generated.resources.timer_set_time_title
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TimerScreen(
+fun TimerScreen(
     timerViewModel: TimerViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val notifier = rememberTimerCompletionNotifier()
     val titleSetTime = stringResource(Res.string.timer_set_time_title)
     val actionReset = stringResource(Res.string.action_reset)
     val actionStart = stringResource(Res.string.action_start)
     val actionStop = stringResource(Res.string.action_stop)
+    val notificationTitle = stringResource(Res.string.timer_finished_notification_title)
+    val notificationBody = stringResource(Res.string.timer_finished_notification_body)
 
     val state by timerViewModel.state.collectAsState()
     val isRunning = state is TimerState.Running
     val showPicker = state is TimerState.Idle || state is TimerState.Finished
     val showTimerDisplay = state is TimerState.Running || state is TimerState.Paused
+    var finishNotificationSent by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state) {
+        if (state is TimerState.Finished && !finishNotificationSent) {
+            notifier.notifyTimerCompleted(
+                title = notificationTitle,
+                body = notificationBody,
+            )
+            finishNotificationSent = true
+        }
+
+        if (state !is TimerState.Finished) {
+            finishNotificationSent = false
+        }
+    }
 
     var selectedSeconds by remember { mutableIntStateOf(0) }
     var secondsInput by remember { mutableStateOf("0") }

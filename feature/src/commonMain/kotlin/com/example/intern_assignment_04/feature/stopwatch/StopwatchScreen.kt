@@ -29,16 +29,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intern_assignment_04.model.domain.LapTime
 import com.example.intern_assignment_04.model.domain.StopwatchState
-import internassignment04.composeapp.generated.resources.Res
-import internassignment04.composeapp.generated.resources.action_reset
-import internassignment04.composeapp.generated.resources.action_start
-import internassignment04.composeapp.generated.resources.action_stop
-import internassignment04.composeapp.generated.resources.stopwatch_lap_button
-import internassignment04.composeapp.generated.resources.stopwatch_lap_label
+import internassignment04.feature.generated.resources.Res
+import internassignment04.feature.generated.resources.action_reset
+import internassignment04.feature.generated.resources.action_start
+import internassignment04.feature.generated.resources.action_stop
+import internassignment04.feature.generated.resources.stopwatch_lap_button
+import internassignment04.feature.generated.resources.stopwatch_lap_label
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun StopwatchScreen(
+fun StopwatchScreen(
     stopwatchViewModel: StopwatchViewModel,
     modifier: Modifier = Modifier,
 ) {

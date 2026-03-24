@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-internal class StopwatchViewModel(
+class StopwatchViewModel(
     private val formatTimeUseCase: FormatTimeUseCase,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val nowMillis: () -> Long,

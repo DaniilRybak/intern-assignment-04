@@ -2,16 +2,4 @@
 <resources>
     <string name="nav_timer">Таймер</string>
     <string name="nav_stopwatch">Секундомер</string>
-
-    <string name="action_start">Пуск</string>
-    <string name="action_stop">Стоп</string>
-    <string name="action_reset">Сброс</string>
-
-    <string name="timer_set_time_title">Установите время</string>
-    <string name="timer_seconds_label">Секунды</string>
-    <string name="timer_seconds_placeholder">0</string>
-
-    <string name="stopwatch_lap_button">Круг</string>
-    <string name="stopwatch_lap_label">Круг %1$d</string>
 </resources>
-

@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-internal class TimerViewModel(
+class TimerViewModel(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val nowMillis: () -> Long,
 ) : TimerService {
