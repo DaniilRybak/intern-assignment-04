@@ -26,7 +26,6 @@ internal val featureModule = module {
 
     factory {
         TimerViewModel(
-            formatTimeUseCase = get(),
             dispatcher = get(),
             nowMillis = get(),
         )

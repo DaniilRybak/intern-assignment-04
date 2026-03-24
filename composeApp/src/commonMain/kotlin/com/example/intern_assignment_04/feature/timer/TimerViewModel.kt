@@ -1,6 +1,5 @@
 package com.example.intern_assignment_04.feature.timer
 
-import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import com.example.intern_assignment_04.model.domain.TimerState
 import com.example.intern_assignment_04.model.service.TimerService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,7 +16,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal class TimerViewModel(
-    private val formatTimeUseCase: FormatTimeUseCase,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val nowMillis: () -> Long,
 ) : TimerService {
@@ -102,7 +100,14 @@ internal class TimerViewModel(
         )
     }
 
-    fun formatRemainingTime(): String = formatTimeUseCase(currentRemainingMillis())
+    fun formatRemainingTime(): String {
+        val millis = currentRemainingMillis().coerceAtLeast(0L)
+        val totalSeconds = millis / 1000L
+        val hours = (totalSeconds / 3600L).toString().padStart(2, '0')
+        val minutes = ((totalSeconds % 3600L) / 60L).toString().padStart(2, '0')
+
+        return "$hours:$minutes"
+    }
 
     fun clear() {
         scope.cancel()

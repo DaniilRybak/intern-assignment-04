@@ -47,7 +47,6 @@ fun App() {
     val nowMillis = remember { { Clock.System.now().toEpochMilliseconds() } }
     val timerViewModel = remember {
         TimerViewModel(
-            formatTimeUseCase = formatTimeUseCase,
             nowMillis = nowMillis,
         )
     }
