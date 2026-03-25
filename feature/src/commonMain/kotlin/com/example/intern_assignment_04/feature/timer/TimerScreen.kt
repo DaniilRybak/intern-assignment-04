@@ -2,19 +2,24 @@ package com.example.intern_assignment_04.feature.timer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,7 +53,6 @@ import internassignment04.feature.generated.resources.action_reset
 import internassignment04.feature.generated.resources.action_start
 import internassignment04.feature.generated.resources.timer_finished_notification_body
 import internassignment04.feature.generated.resources.timer_finished_notification_title
-import internassignment04.feature.generated.resources.timer_melody_label
 import internassignment04.feature.generated.resources.timer_melody_loading
 import internassignment04.feature.generated.resources.timer_melody_pick
 import internassignment04.feature.generated.resources.timer_melody_refresh
@@ -70,7 +76,6 @@ fun TimerScreen(
     val notificationTitle = stringResource(Res.string.timer_finished_notification_title)
     val notificationBody = stringResource(Res.string.timer_finished_notification_body)
 
-    val melodyLabel = stringResource(Res.string.timer_melody_label)
     val melodyPick = stringResource(Res.string.timer_melody_pick)
     val melodyRefresh = stringResource(Res.string.timer_melody_refresh)
     val melodyLoadingText = stringResource(Res.string.timer_melody_loading)
@@ -142,7 +147,7 @@ fun TimerScreen(
         0f
     }
 
-    androidx.compose.foundation.layout.Column(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -164,12 +169,12 @@ fun TimerScreen(
 
                 TimePicker(state = pickerState)
 
-                androidx.compose.foundation.layout.Column(
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     SecondsField(
                         secondsInput = secondsInput,
@@ -248,7 +253,6 @@ fun TimerScreen(
         }
 
         MelodyPicker(
-            label = melodyLabel,
             pickLabel = melodyPick,
             refreshLabel = melodyRefresh,
             loadingLabel = melodyLoadingText,
@@ -265,7 +269,6 @@ fun TimerScreen(
 
 @Composable
 private fun MelodyPicker(
-    label: String,
     pickLabel: String,
     refreshLabel: String,
     loadingLabel: String,
@@ -279,17 +282,14 @@ private fun MelodyPicker(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    androidx.compose.foundation.layout.Column(
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleSmall,
-        )
-
-
-        Row() {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             OutlinedButton(onClick = { expanded = true }) {
                 val selectedText = selected?.let { "${it.title} - ${it.artist}" } ?: pickLabel
                 Text(text = selectedText)
@@ -309,10 +309,27 @@ private fun MelodyPicker(
                     )
                 }
             }
-        }
 
-        OutlinedButton(onClick = onRefresh) {
-            Text(text = if (loading) loadingLabel else refreshLabel)
+            OutlinedButton(
+                onClick = onRefresh,
+                enabled = !loading,
+                modifier = Modifier
+                    .size(44.dp)
+                    .semantics {
+                        contentDescription = if (loading) loadingLabel else refreshLabel
+                    },
+                shape = CircleShape,
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                if (loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = null,
+                    )
+                }
+            }
         }
 
         if (error != null) {
@@ -368,7 +385,7 @@ private fun CircleActionButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier.size(circleSize),
-        shape = androidx.compose.foundation.shape.CircleShape,
+        shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
