@@ -20,9 +20,9 @@ Kotlin Multiplatform-приложение с двумя экранами:
 
 ## 2.1 Скриншоты IOS
 <img width="331" height="710" alt="Снимок экрана 2026-03-25 в 10 46 35" src="https://github.com/user-attachments/assets/24ed9bcb-ccba-4da5-98d2-c1b6a4b94db4" />
-<img width="330" height="711" alt="Снимок экрана 2026-03-25 в 10 46 44" src="https://github.com/user-attachments/assets/3c1d35bc-c79b-4a0b-950f-1c1518e39140" />
+<img width="324" height="713" alt="Снимок экрана 2026-03-25 в 14 38 11" src="https://github.com/user-attachments/assets/8b9284b5-a90c-4396-a257-c1bbcf4770d7" />
 <img width="330" height="714" alt="Снимок экрана 2026-03-25 в 10 46 59" src="https://github.com/user-attachments/assets/84d22cbd-52ff-48f8-8455-71ddbcd9fdc0" />
-<img width="330" height="712" alt="Снимок экрана 2026-03-25 в 10 47 14" src="https://github.com/user-attachments/assets/86045edd-1f59-4151-9cf2-161272ad5ae9" />
+<img width="302" height="703" alt="Снимок экрана 2026-03-25 в 14 39 07" src="https://github.com/user-attachments/assets/618ff401-a676-4c7a-8003-29b352cd20a3" />
 <img width="312" height="678" alt="Снимок экрана 2026-03-25 в 10 47 28" src="https://github.com/user-attachments/assets/86c6c335-dff8-410e-966e-9b4dbf57a118" />
 <img width="321" height="709" alt="Снимок экрана 2026-03-25 в 11 12 49" src="https://github.com/user-attachments/assets/a37e9187-2eb6-4119-af8a-2cf13ffebb93" />
 
