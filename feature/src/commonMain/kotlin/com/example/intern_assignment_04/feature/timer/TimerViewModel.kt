@@ -141,12 +141,23 @@ class TimerViewModel(
     }
 
     fun formatRemainingTime(): String {
-        val millis = currentRemainingMillis().coerceAtLeast(0L)
-        val totalSeconds = millis / 1000L
-        val hours = (totalSeconds / 3600L).toString().padStart(2, '0')
-        val minutes = ((totalSeconds % 3600L) / 60L).toString().padStart(2, '0')
+        val totalSeconds = currentRemainingMillis().coerceAtLeast(0L) / 1000L
+        val minutes = totalSeconds / 60L
+        val seconds = totalSeconds % 60L
 
-        return "$hours:$minutes"
+        return "${minutes.twoDigits()}:${seconds.twoDigits()}"
+    }
+
+    internal fun formatRemainingTimeForCircle(): TimerCircleTime {
+        val totalSeconds = currentRemainingMillis().coerceAtLeast(0L) / 1000L
+        val hours = totalSeconds / 3600L
+        val minutes = (totalSeconds % 3600L) / 60L
+        val seconds = totalSeconds % 60L
+
+        return TimerCircleTime(
+            main = "${hours.twoDigits()}:${minutes.twoDigits()}",
+            seconds = ",${seconds.twoDigits()}",
+        )
     }
 
     fun clear() {
@@ -177,6 +188,13 @@ class TimerViewModel(
         private const val DEFAULT_ITUNES_QUERY = "alarm"
     }
 }
+
+private fun Long.twoDigits(): String = toString().padStart(2, '0')
+
+internal data class TimerCircleTime(
+    val main: String,
+    val seconds: String,
+)
 
 internal sealed interface TimerUiEvent {
     data object TimerFinished : TimerUiEvent

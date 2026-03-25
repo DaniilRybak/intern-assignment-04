@@ -188,7 +188,7 @@ private fun buildStopwatchTimeLabel(
         .toString()
         .padStart(2, '0')
 
-    return "$base:$centiseconds"
+    return "$base.$centiseconds"
 }
 
 private fun formatMillisWithCentiseconds(millis: Long): String {
@@ -198,5 +198,5 @@ private fun formatMillisWithCentiseconds(millis: Long): String {
     val seconds = (totalSeconds % 60L).toString().padStart(2, '0')
     val centiseconds = ((clamped % 1000L) / 10L).toString().padStart(2, '0')
 
-    return "$minutes:$seconds:$centiseconds"
+    return "$minutes:$seconds.$centiseconds"
 }

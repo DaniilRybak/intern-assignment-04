@@ -27,18 +27,21 @@ class TimerViewModelTest {
             viewModel.start(3_000L)
             val startedState = assertIs<TimerState.Running>(viewModel.state.value)
             assertEquals(3_000L, startedState.remainingTimeMillis)
+            assertEquals("00:03", viewModel.formatRemainingTime())
 
             now = 1_000L
             tick(1_000L)
 
             val oneSecondState = assertIs<TimerState.Running>(viewModel.state.value)
             assertEquals(2_000L, oneSecondState.remainingTimeMillis)
+            assertEquals("00:02", viewModel.formatRemainingTime())
 
             now = 3_000L
             tick(2_000L)
 
             val finishedState = assertIs<TimerState.Finished>(viewModel.state.value)
             assertEquals(0L, finishedState.remainingTimeMillis)
+            assertEquals("00:00", viewModel.formatRemainingTime())
         } finally {
             viewModel.clear()
         }

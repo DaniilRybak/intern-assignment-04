@@ -188,6 +188,8 @@ fun TimerScreen(
             }
 
             if (showTimerDisplay) {
+                val circleTime = timerViewModel.formatRemainingTimeForCircle()
+
                 Box(
                     modifier = Modifier.size(280.dp),
                     contentAlignment = Alignment.Center,
@@ -197,13 +199,24 @@ fun TimerScreen(
                         modifier = Modifier.fillMaxSize(),
                         strokeWidth = 12.dp,
                     )
-                    Text(
-                        text = timerViewModel.formatRemainingTime(),
-                        style = MaterialTheme.typography.displayLarge,
-                        fontSize = 64.sp,
-                        textAlign = TextAlign.Center,
-                        color = Color.Black,
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = circleTime.main,
+                            style = MaterialTheme.typography.displayLarge,
+                            fontSize = 56.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                        )
+                        Text(
+                            text = circleTime.seconds,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 24.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                        )
+                    }
                 }
             }
         }
