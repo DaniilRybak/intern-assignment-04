@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,9 +25,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,7 +62,6 @@ import internassignment04.feature.generated.resources.timer_melody_refresh
 import internassignment04.feature.generated.resources.timer_melody_unavailable
 import internassignment04.feature.generated.resources.timer_seconds_label
 import internassignment04.feature.generated.resources.timer_seconds_placeholder
-import internassignment04.feature.generated.resources.timer_set_time_title
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +71,6 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
 ) {
     val notifier = rememberTimerCompletionNotifier()
-    val titleSetTime = stringResource(Res.string.timer_set_time_title)
     val actionReset = stringResource(Res.string.action_reset)
     val actionPause = stringResource(Res.string.action_pause)
     val actionStart = stringResource(Res.string.action_start)
@@ -90,7 +91,6 @@ fun TimerScreen(
     val isRunning = state is TimerState.Running
     val showPicker = state is TimerState.Idle || state is TimerState.Finished
     val showTimerDisplay = state is TimerState.Running || state is TimerState.Paused
-    var finishNotificationSent by remember { mutableStateOf(false) }
 
     LaunchedEffect(showPicker) {
         if (showPicker && melodies.isEmpty() && !melodyLoading) {
@@ -98,23 +98,27 @@ fun TimerScreen(
         }
     }
 
-    LaunchedEffect(state) {
-        if (state is TimerState.Finished && !finishNotificationSent) {
-            val selectedName = selectedMelody?.title
-            val body = if (selectedName == null) notificationBody else "$notificationBody ($selectedName)"
+    LaunchedEffect(timerViewModel, selectedMelody, notificationTitle, notificationBody) {
+        timerViewModel.events.collect { event ->
+            if (event is TimerUiEvent.TimerFinished) {
+                val selectedName = selectedMelody?.title
+                val body = if (selectedName == null) notificationBody else "$notificationBody ($selectedName)"
 
-            notifier.notifyTimerCompleted(
-                title = notificationTitle,
-                body = body,
-            )
-            selectedMelody?.previewUrl?.let { previewUrl ->
-                notifier.playMelodyPreview(previewUrl)
+                notifier.notifyTimerCompleted(
+                    title = notificationTitle,
+                    body = body,
+                )
+                notifier.stopPlayback()
+                selectedMelody?.previewUrl?.let { previewUrl ->
+                    notifier.playMelodyPreview(previewUrl)
+                }
             }
-            finishNotificationSent = true
         }
+    }
 
-        if (state !is TimerState.Finished) {
-            finishNotificationSent = false
+    DisposableEffect(notifier) {
+        onDispose {
+            notifier.stopPlayback()
         }
     }
 
@@ -270,6 +274,13 @@ private fun MelodyPicker(
     onSelect: (Melody) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(error) {
+        if (error != null) {
+            showErrorDialog = true
+        }
+    }
 
     fun String.truncate(maxLength: Int): String {
         return if (this.length > maxLength) {
@@ -329,11 +340,20 @@ private fun MelodyPicker(
             }
         }
 
-        if (error != null) {
-            Text(
-                text = "$unavailableLabel: $error",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.error,
+        if (showErrorDialog && error != null) {
+            AlertDialog(
+                onDismissRequest = { showErrorDialog = false },
+                title = {
+                    Text(text = unavailableLabel)
+                },
+                text = {
+                    Text(text = error)
+                },
+                confirmButton = {
+                    TextButton(onClick = { showErrorDialog = false }) {
+                        Text(text = "OK")
+                    }
+                },
             )
         }
     }

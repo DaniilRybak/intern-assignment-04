@@ -99,6 +99,10 @@ private class AndroidTimerCompletionNotifier(
         }
     }
 
+    override fun stopPlayback() {
+        clearPlayer()
+    }
+
     private fun scheduleAutoStop(player: MediaPlayer) {
         cancelAutoStop()
         stopPlaybackRunnable = Runnable {

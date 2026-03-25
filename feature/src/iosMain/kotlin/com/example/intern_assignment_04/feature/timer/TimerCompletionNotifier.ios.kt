@@ -76,6 +76,10 @@ private class IOSTimerCompletionNotifier : TimerCompletionNotifier {
         }
     }
 
+    override fun stopPlayback() {
+        clearPlayer()
+    }
+
     private fun clearPlayer() {
         stopPlaybackTimer?.invalidate()
         stopPlaybackTimer = null

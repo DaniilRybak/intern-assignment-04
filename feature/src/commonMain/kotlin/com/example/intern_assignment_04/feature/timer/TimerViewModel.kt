@@ -11,8 +11,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -29,12 +32,14 @@ class TimerViewModel(
     private val mutableSelectedMelody = MutableStateFlow<Melody?>(null)
     private val mutableMelodyLoading = MutableStateFlow(false)
     private val mutableMelodyError = MutableStateFlow<String?>(null)
+    private val mutableEvents = MutableSharedFlow<TimerUiEvent>(extraBufferCapacity = 1)
 
     val state: StateFlow<TimerState> = mutableState.asStateFlow()
     val melodies: StateFlow<List<Melody>> = mutableMelodies.asStateFlow()
     val selectedMelody: StateFlow<Melody?> = mutableSelectedMelody.asStateFlow()
     val melodyLoading: StateFlow<Boolean> = mutableMelodyLoading.asStateFlow()
     val melodyError: StateFlow<String?> = mutableMelodyError.asStateFlow()
+    internal val events: SharedFlow<TimerUiEvent> = mutableEvents.asSharedFlow()
 
     private var tickerJob: Job? = null
     private var startedAtMillis: Long = 0L
@@ -55,10 +60,7 @@ class TimerViewModel(
         }
 
         if (remainingAtStartMillis <= 0L) {
-            mutableState.value = TimerState.Finished(
-                totalTimeMillis = configuredTotalMillis,
-                remainingTimeMillis = 0L,
-            )
+            finishTimer()
             return
         }
 
@@ -74,10 +76,7 @@ class TimerViewModel(
                 val updatedRemainingMillis = currentRemainingMillis()
 
                 if (updatedRemainingMillis <= 0L) {
-                    mutableState.value = TimerState.Finished(
-                        totalTimeMillis = configuredTotalMillis,
-                        remainingTimeMillis = 0L,
-                    )
+                    finishTimer()
                     cancel()
                     break
                 }
@@ -166,7 +165,19 @@ class TimerViewModel(
         }
     }
 
+    private fun finishTimer() {
+        mutableState.value = TimerState.Finished(
+            totalTimeMillis = configuredTotalMillis,
+            remainingTimeMillis = 0L,
+        )
+        mutableEvents.tryEmit(TimerUiEvent.TimerFinished)
+    }
+
     private companion object {
         private const val DEFAULT_ITUNES_QUERY = "alarm"
     }
+}
+
+internal sealed interface TimerUiEvent {
+    data object TimerFinished : TimerUiEvent
 }
