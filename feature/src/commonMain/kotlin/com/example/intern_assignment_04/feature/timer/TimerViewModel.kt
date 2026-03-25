@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/** Управляет состоянием таймера, мелодиями и событиями завершения отсчета. */
 class TimerViewModel(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val nowMillis: () -> Long,
@@ -46,6 +47,7 @@ class TimerViewModel(
     private var remainingAtStartMillis: Long = 0L
     private var configuredTotalMillis: Long = 0L
 
+    /** Запускает таймер на заданную длительность или продолжает после паузы. */
     override fun start(durationMillis: Long) {
         if (tickerJob?.isActive == true) {
             return
@@ -89,6 +91,7 @@ class TimerViewModel(
         }
     }
 
+    /** Ставит таймер на паузу и сохраняет остаток времени. */
     override fun pause() {
         val remainingMillis = currentRemainingMillis()
         tickerJob?.cancel()
@@ -100,6 +103,7 @@ class TimerViewModel(
         )
     }
 
+    /** Сбрасывает таймер в состояние Idle с последней выбранной длительностью. */
     override fun reset() {
         tickerJob?.cancel()
         tickerJob = null
@@ -110,6 +114,7 @@ class TimerViewModel(
         )
     }
 
+    /** Загружает список мелодий из репозитория для выбора сигнала. */
     fun loadMelodies(query: String = DEFAULT_ITUNES_QUERY) {
         if (mutableMelodyLoading.value) {
             return
@@ -136,10 +141,12 @@ class TimerViewModel(
         }
     }
 
+    /** Выбирает мелодию по ее идентификатору. */
     fun selectMelody(melodyId: Long) {
         mutableSelectedMelody.value = mutableMelodies.value.firstOrNull { it.id == melodyId }
     }
 
+    /** Форматирует оставшееся время в строку MM:SS. */
     fun formatRemainingTime(): String {
         val totalSeconds = currentRemainingMillis().coerceAtLeast(0L) / 1000L
         val minutes = totalSeconds / 60L
@@ -148,6 +155,7 @@ class TimerViewModel(
         return "${minutes.twoDigits()}:${seconds.twoDigits()}"
     }
 
+    /** Возвращает время для кругового индикатора в двух частях (часы:минуты и секунды). */
     internal fun formatRemainingTimeForCircle(): TimerCircleTime {
         val totalSeconds = currentRemainingMillis().coerceAtLeast(0L) / 1000L
         val hours = totalSeconds / 3600L
@@ -160,10 +168,12 @@ class TimerViewModel(
         )
     }
 
+    /** Очищает scope view-модели и завершает связанные корутины. */
     fun clear() {
         scope.cancel()
     }
 
+    /** Вычисляет актуальный остаток времени в зависимости от текущего состояния. */
     private fun currentRemainingMillis(): Long {
         return when (val currentState = mutableState.value) {
             is TimerState.Idle -> currentState.remainingTimeMillis
@@ -176,6 +186,7 @@ class TimerViewModel(
         }
     }
 
+    /** Переводит таймер в состояние завершения и отправляет событие UI. */
     private fun finishTimer() {
         mutableState.value = TimerState.Finished(
             totalTimeMillis = configuredTotalMillis,
@@ -189,13 +200,17 @@ class TimerViewModel(
     }
 }
 
+/** Возвращает строку числа с ведущим нулем до двух символов. */
 private fun Long.twoDigits(): String = toString().padStart(2, '0')
 
+/** Представление времени для кругового таймера: основная и вторичная части. */
 internal data class TimerCircleTime(
     val main: String,
     val seconds: String,
 )
 
+/** События UI, которые эмитит таймер поверх состояния. */
 internal sealed interface TimerUiEvent {
+    /** Событие завершения обратного отсчета. */
     data object TimerFinished : TimerUiEvent
 }

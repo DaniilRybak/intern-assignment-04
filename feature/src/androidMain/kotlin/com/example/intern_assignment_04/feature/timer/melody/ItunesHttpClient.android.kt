@@ -7,6 +7,7 @@ import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+/** Создает Android-клиент Ktor с JSON-парсингом для iTunes API. */
 internal actual fun createItunesHttpClient(): HttpClient {
     val jsonConfig = Json {
         ignoreUnknownKeys = true

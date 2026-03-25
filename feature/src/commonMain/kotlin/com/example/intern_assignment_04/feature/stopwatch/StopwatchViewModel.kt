@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/** Управляет состоянием секундомера: запуск, пауза, круги и форматирование времени. */
 class StopwatchViewModel(
     private val formatTimeUseCase: FormatTimeUseCase,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -36,6 +37,7 @@ class StopwatchViewModel(
         private const val TICK_INTERVAL_MILLIS = 16L
     }
 
+    /** Запускает секундомер или продолжает его после паузы. */
     fun start() {
         if (tickerJob?.isActive == true) {
             return
@@ -68,6 +70,7 @@ class StopwatchViewModel(
         }
     }
 
+    /** Приостанавливает отсчет и фиксирует текущее время. */
     fun pause() {
         val elapsedMillis = currentElapsedMillis()
         val laps = mutableState.value.laps
@@ -80,6 +83,7 @@ class StopwatchViewModel(
         )
     }
 
+    /** Сбрасывает время и список кругов в начальное состояние. */
     fun reset() {
         tickerJob?.cancel()
         tickerJob = null
@@ -92,6 +96,7 @@ class StopwatchViewModel(
         )
     }
 
+    /** Добавляет новый круг на основе разницы с предыдущим кругом. */
     fun recordLap() {
         mutableState.update { currentState ->
             if (currentState !is StopwatchState.Running) {
@@ -113,12 +118,15 @@ class StopwatchViewModel(
         }
     }
 
+    /** Возвращает строковое представление времени в формате MM:SS. */
     fun formatElapsedTime(elapsedMillis: Long): String = formatTimeUseCase(elapsedMillis)
 
+    /** Очищает coroutine scope при уничтожении VM. */
     fun clear() {
         scope.cancel()
     }
 
+    /** Вычисляет фактически прошедшее время для текущего состояния секундомера. */
     private fun currentElapsedMillis(
         state: StopwatchState = mutableState.value,
     ): Long {

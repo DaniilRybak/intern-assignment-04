@@ -37,6 +37,7 @@ import internassignment04.feature.generated.resources.stopwatch_lap_button
 import internassignment04.feature.generated.resources.stopwatch_lap_label
 import org.jetbrains.compose.resources.stringResource
 
+/** Экран секундомера с управлением, списком кругов и подсветкой лучшего/худшего круга. */
 @Composable
 fun StopwatchScreen(
     stopwatchViewModel: StopwatchViewModel,
@@ -141,6 +142,7 @@ fun StopwatchScreen(
     }
 }
 
+/** Круглая кнопка действия для управления секундомером. */
 @Composable
 private fun CircleActionButton(
     text: String,
@@ -171,6 +173,7 @@ private fun CircleActionButton(
     }
 }
 
+/** Отрисовывает строку одного круга и его длительность. */
 @Composable
 private fun LapRow(
     lap: LapTime,
@@ -205,6 +208,7 @@ private fun LapRow(
     }
 }
 
+/** Собирает подпись времени секундомера в формате MM:SS.CC. */
 private fun buildStopwatchTimeLabel(
     base: String,
     elapsedMillis: Long,
@@ -216,6 +220,7 @@ private fun buildStopwatchTimeLabel(
     return "$base.$centiseconds"
 }
 
+/** Форматирует миллисекунды круга в строку MM:SS.CC. */
 private fun formatMillisWithCentiseconds(millis: Long): String {
     val clamped = millis.coerceAtLeast(0L)
     val totalSeconds = clamped / 1000L

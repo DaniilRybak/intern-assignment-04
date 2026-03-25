@@ -17,6 +17,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 
 private const val MELODY_PREVIEW_MAX_DURATION_SECONDS = 10.0
 
+/** Возвращает iOS-реализацию уведомлений таймера. */
 @Composable
 internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
     return remember {
@@ -24,12 +25,14 @@ internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
     }
 }
 
+/** iOS-реализация уведомлений и предпрослушивания мелодии. */
 private class IOSTimerCompletionNotifier : TimerCompletionNotifier {
 
     private val notificationCenter = UNUserNotificationCenter.currentNotificationCenter()
     private var player: AVPlayer? = null
     private var stopPlaybackTimer: NSTimer? = null
 
+    /** Запрашивает разрешение на уведомления сразу после создания notifier. */
     init {
         notificationCenter.requestAuthorizationWithOptions(
             options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
@@ -37,6 +40,7 @@ private class IOSTimerCompletionNotifier : TimerCompletionNotifier {
         )
     }
 
+    /** Создает локальное уведомление о завершении таймера. */
     override fun notifyTimerCompleted(title: String, body: String) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
@@ -61,6 +65,7 @@ private class IOSTimerCompletionNotifier : TimerCompletionNotifier {
         )
     }
 
+    /** Воспроизводит превью мелодии и останавливает его по таймеру. */
     override fun playMelodyPreview(previewUrl: String) {
         runCatching {
             clearPlayer()
@@ -76,10 +81,12 @@ private class IOSTimerCompletionNotifier : TimerCompletionNotifier {
         }
     }
 
+    /** Явно останавливает текущее воспроизведение мелодии. */
     override fun stopPlayback() {
         clearPlayer()
     }
 
+    /** Очищает таймер автоостановки и завершает воспроизведение. */
     private fun clearPlayer() {
         stopPlaybackTimer?.invalidate()
         stopPlaybackTimer = null

@@ -21,6 +21,7 @@ private const val TIMER_CHANNEL_NAME = "Timer"
 private const val MELODY_PREVIEW_MAX_DURATION_MILLIS = 10_000L
 private const val FULL_SCREEN_REQUEST_CODE = 104
 
+/** Возвращает Android-реализацию уведомлений таймера, привязанную к application context. */
 @Composable
 internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
     val context = LocalContext.current.applicationContext
@@ -30,6 +31,7 @@ internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
     }
 }
 
+/** Android-реализация уведомлений и проигрывания превью мелодии. */
 private class AndroidTimerCompletionNotifier(
     private val context: Context,
 ) : TimerCompletionNotifier {
@@ -38,6 +40,7 @@ private class AndroidTimerCompletionNotifier(
     private val mainHandler = Handler(Looper.getMainLooper())
     private var stopPlaybackRunnable: Runnable? = null
 
+    /** Показывает уведомление о завершении таймера, если есть разрешение на уведомления. */
     @SuppressLint("MissingPermission")
     override fun notifyTimerCompleted(title: String, body: String) {
         if (
@@ -118,6 +121,7 @@ private class AndroidTimerCompletionNotifier(
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
+    /** Запускает воспроизведение превью и ограничивает его максимальной длительностью. */
     override fun playMelodyPreview(previewUrl: String) {
         runCatching {
             clearPlayer()
@@ -139,10 +143,12 @@ private class AndroidTimerCompletionNotifier(
         }
     }
 
+    /** Останавливает воспроизведение мелодии и освобождает ресурсы плеера. */
     override fun stopPlayback() {
         clearPlayer()
     }
 
+    /** Планирует автоостановку плеера, чтобы не играть дольше заданного лимита. */
     private fun scheduleAutoStop(player: MediaPlayer) {
         cancelAutoStop()
         stopPlaybackRunnable = Runnable {
@@ -155,11 +161,13 @@ private class AndroidTimerCompletionNotifier(
         mainHandler.postDelayed(stopPlaybackRunnable!!, MELODY_PREVIEW_MAX_DURATION_MILLIS)
     }
 
+    /** Отменяет ранее запланированную автоостановку плеера. */
     private fun cancelAutoStop() {
         stopPlaybackRunnable?.let { mainHandler.removeCallbacks(it) }
         stopPlaybackRunnable = null
     }
 
+    /** Безопасно завершает текущее воспроизведение и очищает ссылку на плеер. */
     private fun clearPlayer() {
         cancelAutoStop()
         mediaPlayer?.let { player ->

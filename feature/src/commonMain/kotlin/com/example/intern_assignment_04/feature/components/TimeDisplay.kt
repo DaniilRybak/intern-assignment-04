@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
+/** Отрисовывает центральный текст времени одной строкой. */
 @Composable
 fun TimeDisplay(
     text: String,
@@ -29,6 +30,7 @@ fun TimeDisplay(
     )
 }
 
+/** Отрисовывает время в двух частях: основная строка и вторичный текст. */
 @Composable
 fun SplitTimeDisplay(
     mainText: String,
@@ -56,4 +58,3 @@ fun SplitTimeDisplay(
         )
     }
 }
-

@@ -64,6 +64,7 @@ import internassignment04.feature.generated.resources.timer_seconds_label
 import internassignment04.feature.generated.resources.timer_seconds_placeholder
 import org.jetbrains.compose.resources.stringResource
 
+/** Экран таймера с выбором времени, управлением отсчетом и выбором мелодии уведомления. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerScreen(
@@ -261,6 +262,7 @@ fun TimerScreen(
     }
 }
 
+/** Блок выбора и обновления мелодии для уведомления завершения таймера. */
 @Composable
 private fun MelodyPicker(
     pickLabel: String,
@@ -360,6 +362,7 @@ private fun MelodyPicker(
     }
 }
 
+/** Поле ввода секунд для дополнения выбора времени из TimePicker. */
 @Composable
 private fun SecondsField(
     secondsInput: String,
@@ -390,6 +393,7 @@ private fun SecondsField(
     }
 }
 
+/** Универсальная круглая кнопка действия для экрана таймера. */
 @Composable
 private fun CircleActionButton(
     text: String,

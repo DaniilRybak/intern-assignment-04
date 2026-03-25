@@ -10,8 +10,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlin.time.Clock
 import org.koin.dsl.module
 
+/** Провайдер текущего времени в миллисекундах. */
 internal typealias NowMillisProvider = () -> Long
 
+/** DI-модуль feature-слоя: VM, use case, сеть и системные зависимости. */
 internal val featureModule = module {
 
     single<CoroutineDispatcher> {

@@ -7,10 +7,12 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
 
+/** Реализация [MelodyRepository], загружающая треки из iTunes Search API. */
 class ITunesMelodyRepository(
     private val client: HttpClient = createItunesHttpClient(),
 ) : MelodyRepository {
 
+    /** Запрашивает треки у iTunes и маппит корректные записи в доменную модель [Melody]. */
     override suspend fun searchMelodies(
         query: String,
         limit: Int,

@@ -9,9 +9,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+/** Набор тестов поведения [StopwatchViewModel]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class StopwatchViewModelTest {
 
+    /** Проверяет, что секундомер корректно сохраняет длительность каждого круга. */
     @Test
     fun shouldRecordLapTimesInStopwatch() = runTest {
         var now = 0L
@@ -38,4 +40,3 @@ class StopwatchViewModelTest {
         viewModel.clear()
     }
 }
-

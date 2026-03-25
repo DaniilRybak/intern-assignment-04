@@ -13,9 +13,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+/** Набор тестов поведения [TimerViewModel]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class TimerViewModelTest {
 
+    /** Проверяет корректный обратный отсчет таймера от заданного значения. */
     @Test
     fun shouldCountdownFromSetTime() = runTest {
         var now = 0L
@@ -49,6 +51,7 @@ class TimerViewModelTest {
         }
     }
 
+    /** Проверяет, что таймер правильно ставится на паузу и продолжается после нее. */
     @Test
     fun shouldPauseAndResumeTimer() = runTest {
         var now = 0L
@@ -86,6 +89,7 @@ class TimerViewModelTest {
         }
     }
 
+    /** Проверяет, что при достижении нуля таймер отправляет событие завершения. */
     @Test
     fun shouldEmitFinishEventWhenTimerReachesZero() = runTest {
         var now = 0L
@@ -110,6 +114,38 @@ class TimerViewModelTest {
         }
     }
 
+    /** Проверяет отсутствие дрейфа: 60-секундный таймер завершается точно в ноль. */
+    @Test
+    fun shouldKeepAccurateTimeAfterSixtySeconds() = runTest {
+        var now = 0L
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val viewModel = TimerViewModel(
+            dispatcher = dispatcher,
+            nowMillis = { now },
+        )
+
+        try {
+            viewModel.start(60_000L)
+
+            now = 59_000L
+            tick(59_000L)
+
+            val beforeFinishState = assertIs<TimerState.Running>(viewModel.state.value)
+            assertEquals(1_000L, beforeFinishState.remainingTimeMillis)
+            assertEquals("00:01", viewModel.formatRemainingTime())
+
+            now = 60_000L
+            tick(1_000L)
+
+            val finishedState = assertIs<TimerState.Finished>(viewModel.state.value)
+            assertEquals(0L, finishedState.remainingTimeMillis)
+            assertEquals("00:00", viewModel.formatRemainingTime())
+        } finally {
+            viewModel.clear()
+        }
+    }
+
+    /** Сдвигает виртуальное время тестового scheduler и исполняет отложенные задачи. */
     private fun TestScope.tick(millis: Long) {
         advanceTimeBy(millis)
         runCurrent()

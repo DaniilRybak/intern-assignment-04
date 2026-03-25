@@ -47,6 +47,7 @@ import org.koin.core.KoinApplication
 
 private var featureKoinApplication: KoinApplication? = null
 
+/** Возвращает существующий Koin-контейнер или инициализирует его один раз. */
 private fun getOrCreateFeatureKoin(): KoinApplication {
     val existing = featureKoinApplication
     if (existing != null) {
@@ -58,6 +59,7 @@ private fun getOrCreateFeatureKoin(): KoinApplication {
     }
 }
 
+/** Корневой composable приложения: инициализирует VM и отображает экран с табами. */
 @Composable
 @Preview
 fun App() {
@@ -121,11 +123,13 @@ fun App() {
     }
 }
 
+/** Модель элемента нижней навигации: локализованный заголовок и иконка. */
 private data class NavBarTab(
     val title: StringResource,
     val icon: DrawableResource,
 )
 
+/** Отрисовывает нижний ряд вкладок и сообщает выбранный индекс наружу. */
 @Composable
 private fun BottomCenterTabRow(
     tabs: List<NavBarTab>,

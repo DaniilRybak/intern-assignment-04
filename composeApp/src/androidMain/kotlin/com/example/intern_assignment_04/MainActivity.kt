@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
+/** Android entrypoint, который поднимает Compose-контент приложения. */
 class MainActivity : ComponentActivity() {
+    /** Инициализирует окно и рендерит корневой composable. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -18,6 +20,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** Preview корневого экрана приложения для Android Studio. */
 @Preview
 @Composable
 fun AppAndroidPreview() {

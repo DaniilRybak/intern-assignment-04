@@ -3,12 +3,14 @@ package com.example.intern_assignment_04.feature.timer.melody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/** DTO-обертка ответа iTunes Search API. */
 @Serializable
 internal data class ITunesSearchResponseDto(
     @SerialName("results")
     val results: List<ITunesTrackDto> = emptyList(),
 )
 
+/** DTO записи трека из выдачи iTunes. */
 @Serializable
 internal data class ITunesTrackDto(
     @SerialName("trackId")
@@ -20,4 +22,3 @@ internal data class ITunesTrackDto(
     @SerialName("previewUrl")
     val previewUrl: String? = null,
 )
-
