@@ -11,11 +11,15 @@ Kotlin Multiplatform-приложение с двумя экранами:
 - `:feature` — UI, ViewModel и use-case.
 
 ## 2. Скриншоты
-![Timer](screenshots/timer.png)
-![Stopwatch](screenshots/stopwatch.png)
+<img width="331" height="710" alt="Снимок экрана 2026-03-25 в 10 46 35" src="https://github.com/user-attachments/assets/24ed9bcb-ccba-4da5-98d2-c1b6a4b94db4" />
+<img width="330" height="711" alt="Снимок экрана 2026-03-25 в 10 46 44" src="https://github.com/user-attachments/assets/3c1d35bc-c79b-4a0b-950f-1c1518e39140" />
+<img width="330" height="714" alt="Снимок экрана 2026-03-25 в 10 46 59" src="https://github.com/user-attachments/assets/84d22cbd-52ff-48f8-8455-71ddbcd9fdc0" />
+<img width="330" height="712" alt="Снимок экрана 2026-03-25 в 10 47 14" src="https://github.com/user-attachments/assets/86045edd-1f59-4151-9cf2-161272ad5ae9" />
+<img width="312" height="678" alt="Снимок экрана 2026-03-25 в 10 47 28" src="https://github.com/user-attachments/assets/86c6c335-dff8-410e-966e-9b4dbf57a118" />
+
 
 ## 3. Видео
-[Смотреть видео](ссылка)
+[Смотреть видео](https://youtube.com/shorts/O6kXoYFIu1c?feature=share)
 
 ## 4. APK
 [Скачать APK](releases)
@@ -40,5 +44,6 @@ Kotlin Multiplatform-приложение с двумя экранами:
 Открой папку `iosApp` в Xcode и запусти приложение на симуляторе.
 
 ## 6. Использованные ИИ-инструменты
-- GitHub Copilot (помощь в генерации/рефакторинге кода)
-- ChatGPT (поддержка по архитектуре, тестам и документации)
+- GitHub Copilot: ChatGPT, Claude, Gemini (помощь в генерации/рефакторинге кода)
+- QWEN 3.5 (Планирование/ревью контрольныъ точек)
+- Grok (Планирование/ревью контрольныъ точек)
