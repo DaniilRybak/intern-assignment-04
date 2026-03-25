@@ -157,14 +157,13 @@ private fun BottomCenterTabRow(
                     onClick = { onTabSelected(index) },
                     selectedContentColor = itemTextColor,
                     unselectedContentColor = itemTextColor,
-                    modifier = Modifier.padding(horizontal = 3.dp),
                 ) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(18.dp))
                             .background(itemBg)
                             .widthIn(min = 120.dp)
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                            .padding(horizontal = 8.dp, vertical = 10.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Row(
