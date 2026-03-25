@@ -43,11 +43,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.intern_assignment_04.feature.components.SplitTimeDisplay
 import com.example.intern_assignment_04.feature.timer.melody.Melody
 import com.example.intern_assignment_04.model.domain.TimerState
 import internassignment04.feature.generated.resources.Res
@@ -199,24 +199,12 @@ fun TimerScreen(
                         modifier = Modifier.fillMaxSize(),
                         strokeWidth = 12.dp,
                     )
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = circleTime.main,
-                            style = MaterialTheme.typography.displayLarge,
-                            fontSize = 56.sp,
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                        )
-                        Text(
-                            text = circleTime.seconds,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontSize = 24.sp,
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                        )
-                    }
+                    SplitTimeDisplay(
+                        mainText = circleTime.main,
+                        secondaryText = circleTime.seconds,
+                        mainFontSize = 56.sp,
+                        secondaryFontSize = 24.sp,
+                    )
                 }
             }
         }

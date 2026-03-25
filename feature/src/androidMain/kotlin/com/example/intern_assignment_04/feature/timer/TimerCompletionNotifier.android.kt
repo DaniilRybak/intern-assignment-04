@@ -5,6 +5,7 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 private const val TIMER_CHANNEL_ID = "timer_finished_channel"
 private const val TIMER_CHANNEL_NAME = "Timer"
 private const val MELODY_PREVIEW_MAX_DURATION_MILLIS = 10_000L
+private const val FULL_SCREEN_REQUEST_CODE = 104
 
 @Composable
 internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
@@ -53,27 +55,65 @@ private class AndroidTimerCompletionNotifier(
                 TIMER_CHANNEL_ID,
                 TIMER_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH,
-            )
+            ).apply {
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                description = "Timer completion alerts"
+            }
             notificationManager.createNotificationChannel(channel)
+        }
 
-            val notification = Notification.Builder(context, TIMER_CHANNEL_ID)
+        val launchIntent = context.packageManager
+            .getLaunchIntentForPackage(context.packageName)
+            ?.apply {
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+
+        val fullScreenPendingIntent = launchIntent?.let { intent ->
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            PendingIntent.getActivity(
+                context,
+                FULL_SCREEN_REQUEST_CODE,
+                intent,
+                flags,
+            )
+        }
+
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(context, TIMER_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
+                .setCategory(Notification.CATEGORY_ALARM)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .apply {
+                    if (fullScreenPendingIntent != null) {
+                        setContentIntent(fullScreenPendingIntent)
+                        setFullScreenIntent(fullScreenPendingIntent, true)
+                    }
+                }
                 .build()
-
-            notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-            return
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(context)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setAutoCancel(true)
+                .setCategory(Notification.CATEGORY_ALARM)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setPriority(Notification.PRIORITY_MAX)
+                .apply {
+                    if (fullScreenPendingIntent != null) {
+                        setContentIntent(fullScreenPendingIntent)
+                        setFullScreenIntent(fullScreenPendingIntent, true)
+                    }
+                }
+                .build()
         }
-
-        @Suppress("DEPRECATION")
-        val notification = Notification.Builder(context)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setAutoCancel(true)
-            .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }

@@ -23,10 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.intern_assignment_04.feature.components.TimeDisplay
 import com.example.intern_assignment_04.model.domain.LapTime
 import com.example.intern_assignment_04.model.domain.StopwatchState
 import internassignment04.feature.generated.resources.Res
@@ -52,13 +52,25 @@ fun StopwatchScreen(
     val circleSize = 80.dp
     val surfaceGray = Color(0xFFBDBDBD)
 
+    val highlightBestAndWorst = state.laps.size > 1
+    val bestLapDuration = if (highlightBestAndWorst) {
+        state.laps.minOf { it.lapDurationMillis }
+    } else {
+        null
+    }
+    val worstLapDuration = if (highlightBestAndWorst) {
+        state.laps.maxOf { it.lapDurationMillis }
+    } else {
+        null
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(
+        TimeDisplay(
             text = buildStopwatchTimeLabel(
                 base = stopwatchViewModel.formatElapsedTime(state.elapsedTimeMillis),
                 elapsedMillis = state.elapsedTimeMillis,
@@ -66,10 +78,7 @@ fun StopwatchScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 60.dp),
-            style = MaterialTheme.typography.displayLarge,
             fontSize = 72.sp,
-            textAlign = TextAlign.Center,
-            color = Color.Black,
         )
 
         Row(
@@ -122,7 +131,11 @@ fun StopwatchScreen(
                 items = state.laps.asReversed(),
                 key = { lap -> lap.lapNumber },
             ) { lap ->
-                LapRow(lap = lap)
+                LapRow(
+                    lap = lap,
+                    isBestLap = bestLapDuration != null && lap.lapDurationMillis == bestLapDuration,
+                    isWorstLap = worstLapDuration != null && lap.lapDurationMillis == worstLapDuration,
+                )
             }
         }
     }
@@ -159,8 +172,17 @@ private fun CircleActionButton(
 }
 
 @Composable
-private fun LapRow(lap: LapTime) {
+private fun LapRow(
+    lap: LapTime,
+    isBestLap: Boolean,
+    isWorstLap: Boolean,
+) {
     val lapLabel = stringResource(Res.string.stopwatch_lap_label, lap.lapNumber)
+    val lapTimeColor = when {
+        isBestLap && !isWorstLap -> Color(0xFF2E7D32)
+        isWorstLap && !isBestLap -> Color(0xFFC62828)
+        else -> Color.Black
+    }
 
     Row(
         modifier = Modifier
@@ -170,13 +192,16 @@ private fun LapRow(lap: LapTime) {
                     color = Color(0xFFBDBDBD),
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
-                    strokeWidth = 1.dp.toPx()
+                    strokeWidth = 1.dp.toPx(),
                 )
             },
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(text = lapLabel)
-        Text(text = formatMillisWithCentiseconds(lap.lapDurationMillis))
+        Text(
+            text = formatMillisWithCentiseconds(lap.lapDurationMillis),
+            color = lapTimeColor,
+        )
     }
 }
 

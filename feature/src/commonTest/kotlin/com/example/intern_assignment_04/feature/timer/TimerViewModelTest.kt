@@ -2,6 +2,8 @@ package com.example.intern_assignment_04.feature.timer
 
 import com.example.intern_assignment_04.model.domain.TimerState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -94,12 +96,15 @@ class TimerViewModelTest {
         )
 
         try {
+            val finishEventDeferred = async { viewModel.events.first() }
+
             viewModel.start(1_000L)
 
             now = 1_000L
             tick(1_000L)
 
             assertIs<TimerState.Finished>(viewModel.state.value)
+            assertEquals(TimerUiEvent.TimerFinished, finishEventDeferred.await())
         } finally {
             viewModel.clear()
         }

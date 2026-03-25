@@ -115,8 +115,6 @@ class StopwatchViewModel(
 
     fun formatElapsedTime(elapsedMillis: Long): String = formatTimeUseCase(elapsedMillis)
 
-    fun formatElapsedTime(): String = formatElapsedTime(currentElapsedMillis())
-
     fun clear() {
         scope.cancel()
     }

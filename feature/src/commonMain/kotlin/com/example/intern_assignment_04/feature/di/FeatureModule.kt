@@ -2,6 +2,8 @@ package com.example.intern_assignment_04.feature.di
 
 import com.example.intern_assignment_04.feature.stopwatch.StopwatchViewModel
 import com.example.intern_assignment_04.feature.timer.TimerViewModel
+import com.example.intern_assignment_04.feature.timer.melody.ITunesMelodyRepository
+import com.example.intern_assignment_04.feature.timer.melody.MelodyRepository
 import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +22,10 @@ internal val featureModule = module {
         { Clock.System.now().toEpochMilliseconds() }
     }
 
+    single<MelodyRepository> {
+        ITunesMelodyRepository()
+    }
+
     factory {
         FormatTimeUseCase()
     }
@@ -28,6 +34,7 @@ internal val featureModule = module {
         TimerViewModel(
             dispatcher = get(),
             nowMillis = get(),
+            melodyRepository = get(),
         )
     }
     factory {

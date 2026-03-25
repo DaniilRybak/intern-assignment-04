@@ -29,41 +29,41 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.intern_assignment_04.feature.di.initFeatureKoin
 import com.example.intern_assignment_04.feature.stopwatch.StopwatchScreen
 import com.example.intern_assignment_04.feature.stopwatch.StopwatchViewModel
 import com.example.intern_assignment_04.feature.timer.TimerScreen
 import com.example.intern_assignment_04.feature.timer.TimerViewModel
-import com.example.intern_assignment_04.feature.timer.melody.ITunesMelodyRepository
-import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import internassignment04.composeapp.generated.resources.Res
 import internassignment04.composeapp.generated.resources.nav_stopwatch
 import internassignment04.composeapp.generated.resources.nav_timer
 import internassignment04.composeapp.generated.resources.timer
 import internassignment04.composeapp.generated.resources.timer_sec
 import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Clock
+import org.koin.core.KoinApplication
+
+private var featureKoinApplication: KoinApplication? = null
+
+private fun getOrCreateFeatureKoin(): KoinApplication {
+    val existing = featureKoinApplication
+    if (existing != null) {
+        return existing
+    }
+
+    return initFeatureKoin().also { created ->
+        featureKoinApplication = created
+    }
+}
 
 @Composable
 @Preview
 fun App() {
-    val formatTimeUseCase = remember { FormatTimeUseCase() }
-    val melodyRepository = remember { ITunesMelodyRepository() }
-    val nowMillis = remember { { Clock.System.now().toEpochMilliseconds() } }
-    val timerViewModel = remember {
-        TimerViewModel(
-            nowMillis = nowMillis,
-            melodyRepository = melodyRepository,
-        )
-    }
-    val stopwatchViewModel = remember {
-        StopwatchViewModel(
-            formatTimeUseCase = formatTimeUseCase,
-            nowMillis = nowMillis,
-        )
-    }
+    val koin = remember { getOrCreateFeatureKoin().koin }
+    val timerViewModel = remember { koin.get<TimerViewModel>() }
+    val stopwatchViewModel = remember { koin.get<StopwatchViewModel>() }
 
     DisposableEffect(Unit) {
         onDispose {
