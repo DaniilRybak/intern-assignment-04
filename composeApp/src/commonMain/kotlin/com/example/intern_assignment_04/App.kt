@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -139,13 +139,12 @@ private fun BottomCenterTabRow(
             .background(Color(0xFFF1F1F1))
             .padding(horizontal = 8.dp, vertical = 8.dp),
     ) {
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            containerColor = Color.Transparent,
-            contentColor = Color.Black,
-            divider = {},
-            indicator = {},
-        ) {
+        SecondaryTabRow(
+            selectedTabIndex,
+            Modifier, Color.Transparent,
+            Color.Black,
+            {},
+            {}) {
             tabs.forEachIndexed { index, tab ->
                 val tabTitle = stringResource(tab.title)
                 val isSelected = index == selectedTabIndex
