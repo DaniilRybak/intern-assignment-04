@@ -38,7 +38,7 @@ Kotlin Multiplatform-приложение с двумя экранами:
 [Смотреть видео](https://youtube.com/shorts/O6kXoYFIu1c?feature=share)
 
 ## 4. APK
-[Скачать APK](releases)
+[Скачать APK](https://github.com/DaniilRybak/intern-assignment-04/releases/tag/v1.0.0)
 
 ## 5. Инструкция по запуску
 ### Требования
