@@ -2,7 +2,6 @@ package com.example.intern_assignment_04
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -108,7 +109,7 @@ fun App() {
                 }
             }
 
-            BottomCenterNavbar(
+            BottomCenterTabRow(
                 tabs = tabs,
                 selectedTabIndex = selectedTabIndex,
                 onTabSelected = { selectedTabIndex = it },
@@ -126,51 +127,64 @@ private data class NavBarTab(
 )
 
 @Composable
-private fun BottomCenterNavbar(
+private fun BottomCenterTabRow(
     tabs: List<NavBarTab>,
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Box(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
             .background(Color(0xFFF1F1F1))
             .padding(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        tabs.forEachIndexed { index, tab ->
-            val tabTitle = stringResource(tab.title)
-            val isSelected = index == selectedTabIndex
-            val itemBg = if (isSelected) Color.White else Color.Transparent
-            val itemTextColor = if (isSelected) Color.Black else Color(0xFF707070)
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent,
+            contentColor = Color.Black,
+            divider = {},
+            indicator = {},
+        ) {
+            tabs.forEachIndexed { index, tab ->
+                val tabTitle = stringResource(tab.title)
+                val isSelected = index == selectedTabIndex
+                val itemBg = if (isSelected) Color.White else Color.Transparent
+                val itemTextColor = if (isSelected) Color.Black else Color(0xFF707070)
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(itemBg)
-                    .clickable { onTabSelected(index) }
-                    .widthIn(min = 120.dp)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Tab(
+                    selected = isSelected,
+                    onClick = { onTabSelected(index) },
+                    selectedContentColor = itemTextColor,
+                    unselectedContentColor = itemTextColor,
+                    modifier = Modifier.padding(horizontal = 3.dp),
                 ) {
-                    Image(
-                        painter = painterResource(tab.icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        colorFilter = ColorFilter.tint(itemTextColor),
-                    )
-                    Text(
-                        text = tabTitle,
-                        color = itemTextColor,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(itemBg)
+                            .widthIn(min = 120.dp)
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                painter = painterResource(tab.icon),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                colorFilter = ColorFilter.tint(itemTextColor),
+                            )
+                            Text(
+                                text = tabTitle,
+                                color = itemTextColor,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            )
+                        }
+                    }
                 }
             }
         }
