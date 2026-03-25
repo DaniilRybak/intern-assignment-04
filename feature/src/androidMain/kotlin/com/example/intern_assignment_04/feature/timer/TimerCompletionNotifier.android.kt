@@ -7,13 +7,17 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 private const val TIMER_CHANNEL_ID = "timer_finished_channel"
 private const val TIMER_CHANNEL_NAME = "Timer"
+private const val MELODY_PREVIEW_MAX_DURATION_MILLIS = 10_000L
 
 @Composable
 internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
@@ -27,6 +31,10 @@ internal actual fun rememberTimerCompletionNotifier(): TimerCompletionNotifier {
 private class AndroidTimerCompletionNotifier(
     private val context: Context,
 ) : TimerCompletionNotifier {
+
+    private var mediaPlayer: MediaPlayer? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var stopPlaybackRunnable: Runnable? = null
 
     @SuppressLint("MissingPermission")
     override fun notifyTimerCompleted(title: String, body: String) {
@@ -68,5 +76,52 @@ private class AndroidTimerCompletionNotifier(
             .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    override fun playMelodyPreview(previewUrl: String) {
+        runCatching {
+            clearPlayer()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(previewUrl)
+                setOnPreparedListener { player ->
+                    player.start()
+                    scheduleAutoStop(player)
+                }
+                setOnCompletionListener { player ->
+                    player.release()
+                    if (mediaPlayer === player) {
+                        mediaPlayer = null
+                    }
+                    cancelAutoStop()
+                }
+                prepareAsync()
+            }
+        }
+    }
+
+    private fun scheduleAutoStop(player: MediaPlayer) {
+        cancelAutoStop()
+        stopPlaybackRunnable = Runnable {
+            if (mediaPlayer === player) {
+                runCatching { player.stop() }
+                player.release()
+                mediaPlayer = null
+            }
+        }
+        mainHandler.postDelayed(stopPlaybackRunnable!!, MELODY_PREVIEW_MAX_DURATION_MILLIS)
+    }
+
+    private fun cancelAutoStop() {
+        stopPlaybackRunnable?.let { mainHandler.removeCallbacks(it) }
+        stopPlaybackRunnable = null
+    }
+
+    private fun clearPlayer() {
+        cancelAutoStop()
+        mediaPlayer?.let { player ->
+            runCatching { player.stop() }
+            player.release()
+        }
+        mediaPlayer = null
     }
 }

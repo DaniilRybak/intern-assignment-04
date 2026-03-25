@@ -32,6 +32,7 @@ import com.example.intern_assignment_04.feature.stopwatch.StopwatchScreen
 import com.example.intern_assignment_04.feature.stopwatch.StopwatchViewModel
 import com.example.intern_assignment_04.feature.timer.TimerScreen
 import com.example.intern_assignment_04.feature.timer.TimerViewModel
+import com.example.intern_assignment_04.feature.timer.melody.ITunesMelodyRepository
 import com.example.intern_assignment_04.feature.usecase.FormatTimeUseCase
 import internassignment04.composeapp.generated.resources.Res
 import internassignment04.composeapp.generated.resources.nav_stopwatch
@@ -48,10 +49,12 @@ import kotlin.time.Clock
 @Preview
 fun App() {
     val formatTimeUseCase = remember { FormatTimeUseCase() }
+    val melodyRepository = remember { ITunesMelodyRepository() }
     val nowMillis = remember { { Clock.System.now().toEpochMilliseconds() } }
     val timerViewModel = remember {
         TimerViewModel(
             nowMillis = nowMillis,
+            melodyRepository = melodyRepository,
         )
     }
     val stopwatchViewModel = remember {

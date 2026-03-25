@@ -1,5 +1,7 @@
 package com.example.intern_assignment_04.feature.timer
 
+import com.example.intern_assignment_04.feature.timer.melody.Melody
+import com.example.intern_assignment_04.feature.timer.melody.MelodyRepository
 import com.example.intern_assignment_04.model.domain.TimerState
 import com.example.intern_assignment_04.model.service.TimerService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,12 +20,21 @@ import kotlinx.coroutines.launch
 class TimerViewModel(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val nowMillis: () -> Long,
+    private val melodyRepository: MelodyRepository? = null,
 ) : TimerService {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val mutableState = MutableStateFlow<TimerState>(TimerState.Idle())
+    private val mutableMelodies = MutableStateFlow<List<Melody>>(emptyList())
+    private val mutableSelectedMelody = MutableStateFlow<Melody?>(null)
+    private val mutableMelodyLoading = MutableStateFlow(false)
+    private val mutableMelodyError = MutableStateFlow<String?>(null)
 
     val state: StateFlow<TimerState> = mutableState.asStateFlow()
+    val melodies: StateFlow<List<Melody>> = mutableMelodies.asStateFlow()
+    val selectedMelody: StateFlow<Melody?> = mutableSelectedMelody.asStateFlow()
+    val melodyLoading: StateFlow<Boolean> = mutableMelodyLoading.asStateFlow()
+    val melodyError: StateFlow<String?> = mutableMelodyError.asStateFlow()
 
     private var tickerJob: Job? = null
     private var startedAtMillis: Long = 0L
@@ -100,6 +111,36 @@ class TimerViewModel(
         )
     }
 
+    fun loadMelodies(query: String = DEFAULT_ITUNES_QUERY) {
+        if (mutableMelodyLoading.value) {
+            return
+        }
+
+        val repository = melodyRepository ?: return
+
+        scope.launch {
+            mutableMelodyLoading.value = true
+            mutableMelodyError.value = null
+
+            try {
+                val loaded = repository.searchMelodies(query = query)
+                mutableMelodies.value = loaded
+
+                if (mutableSelectedMelody.value == null) {
+                    mutableSelectedMelody.value = loaded.firstOrNull()
+                }
+            } catch (throwable: Throwable) {
+                mutableMelodyError.value = throwable.message ?: "Не удалось загрузить мелодии"
+            } finally {
+                mutableMelodyLoading.value = false
+            }
+        }
+    }
+
+    fun selectMelody(melodyId: Long) {
+        mutableSelectedMelody.value = mutableMelodies.value.firstOrNull { it.id == melodyId }
+    }
+
     fun formatRemainingTime(): String {
         val millis = currentRemainingMillis().coerceAtLeast(0L)
         val totalSeconds = millis / 1000L
@@ -123,5 +164,9 @@ class TimerViewModel(
                 (remainingAtStartMillis - elapsedMillis).coerceAtLeast(0L)
             }
         }
+    }
+
+    private companion object {
+        private const val DEFAULT_ITUNES_QUERY = "alarm"
     }
 }

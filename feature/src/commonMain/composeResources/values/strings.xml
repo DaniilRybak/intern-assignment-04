@@ -13,4 +13,10 @@
 
     <string name="timer_finished_notification_title">Timer finished</string>
     <string name="timer_finished_notification_body">Time is up.</string>
+
+    <string name="timer_melody_label">Finish melody</string>
+    <string name="timer_melody_pick">Pick melody</string>
+    <string name="timer_melody_refresh">Refresh from iTunes</string>
+    <string name="timer_melody_loading">Loading melodies...</string>
+    <string name="timer_melody_unavailable">Melodies are temporarily unavailable</string>
 </resources>

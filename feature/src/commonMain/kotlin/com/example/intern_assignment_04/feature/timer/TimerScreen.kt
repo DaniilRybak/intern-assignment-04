@@ -12,8 +12,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
@@ -35,13 +38,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.intern_assignment_04.feature.timer.melody.Melody
 import com.example.intern_assignment_04.model.domain.TimerState
 import internassignment04.feature.generated.resources.Res
-import internassignment04.feature.generated.resources.action_reset
 import internassignment04.feature.generated.resources.action_pause
+import internassignment04.feature.generated.resources.action_reset
 import internassignment04.feature.generated.resources.action_start
 import internassignment04.feature.generated.resources.timer_finished_notification_body
 import internassignment04.feature.generated.resources.timer_finished_notification_title
+import internassignment04.feature.generated.resources.timer_melody_label
+import internassignment04.feature.generated.resources.timer_melody_loading
+import internassignment04.feature.generated.resources.timer_melody_pick
+import internassignment04.feature.generated.resources.timer_melody_refresh
+import internassignment04.feature.generated.resources.timer_melody_unavailable
 import internassignment04.feature.generated.resources.timer_seconds_label
 import internassignment04.feature.generated.resources.timer_seconds_placeholder
 import internassignment04.feature.generated.resources.timer_set_time_title
@@ -61,18 +70,41 @@ fun TimerScreen(
     val notificationTitle = stringResource(Res.string.timer_finished_notification_title)
     val notificationBody = stringResource(Res.string.timer_finished_notification_body)
 
+    val melodyLabel = stringResource(Res.string.timer_melody_label)
+    val melodyPick = stringResource(Res.string.timer_melody_pick)
+    val melodyRefresh = stringResource(Res.string.timer_melody_refresh)
+    val melodyLoadingText = stringResource(Res.string.timer_melody_loading)
+    val melodyUnavailable = stringResource(Res.string.timer_melody_unavailable)
+
     val state by timerViewModel.state.collectAsState()
+    val melodies by timerViewModel.melodies.collectAsState()
+    val selectedMelody by timerViewModel.selectedMelody.collectAsState()
+    val melodyLoading by timerViewModel.melodyLoading.collectAsState()
+    val melodyError by timerViewModel.melodyError.collectAsState()
+
     val isRunning = state is TimerState.Running
     val showPicker = state is TimerState.Idle || state is TimerState.Finished
     val showTimerDisplay = state is TimerState.Running || state is TimerState.Paused
     var finishNotificationSent by remember { mutableStateOf(false) }
 
+    LaunchedEffect(showPicker) {
+        if (showPicker && melodies.isEmpty() && !melodyLoading) {
+            timerViewModel.loadMelodies()
+        }
+    }
+
     LaunchedEffect(state) {
         if (state is TimerState.Finished && !finishNotificationSent) {
+            val selectedName = selectedMelody?.title
+            val body = if (selectedName == null) notificationBody else "$notificationBody ($selectedName)"
+
             notifier.notifyTimerCompleted(
                 title = notificationTitle,
-                body = notificationBody,
+                body = body,
             )
+            selectedMelody?.previewUrl?.let { previewUrl ->
+                notifier.playMelodyPreview(previewUrl)
+            }
             finishNotificationSent = true
         }
 
@@ -118,9 +150,7 @@ fun TimerScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
             if (showPicker) {
@@ -134,31 +164,34 @@ fun TimerScreen(
 
                 TimePicker(state = pickerState)
 
-                SecondsField(
-                    secondsInput = secondsInput,
-                    onSecondsInputChange = { input ->
-                        val digitsOnly = input.filter { it.isDigit() }.take(2)
-                        if (digitsOnly.isEmpty()) {
-                            secondsInput = ""
-                            selectedSeconds = 0
-                        } else {
-                            val parsed = digitsOnly.toIntOrNull() ?: 0
-                            val clamped = parsed.coerceIn(0, 59)
-                            selectedSeconds = clamped
-                            secondsInput = if (parsed > 59) clamped.toString() else digitsOnly
-                        }
-                    },
+                androidx.compose.foundation.layout.Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 8.dp),
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SecondsField(
+                        secondsInput = secondsInput,
+                        onSecondsInputChange = { input ->
+                            val digitsOnly = input.filter { it.isDigit() }.take(2)
+                            if (digitsOnly.isEmpty()) {
+                                secondsInput = ""
+                                selectedSeconds = 0
+                            } else {
+                                val parsed = digitsOnly.toIntOrNull() ?: 0
+                                val clamped = parsed.coerceIn(0, 59)
+                                selectedSeconds = clamped
+                                secondsInput = if (parsed > 59) clamped.toString() else digitsOnly
+                            }
+                        },
+                    )
+                }
             }
 
             if (showTimerDisplay) {
                 Box(
-                    modifier = Modifier
-                        .size(280.dp)
-                        .padding(top = 20.dp),
+                    modifier = Modifier.size(280.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
@@ -180,7 +213,7 @@ fun TimerScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp),
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -211,6 +244,82 @@ fun TimerScreen(
                     Color(0xFF2E7D32)
                 },
                 contentColor = Color.White,
+            )
+        }
+
+        MelodyPicker(
+            label = melodyLabel,
+            pickLabel = melodyPick,
+            refreshLabel = melodyRefresh,
+            loadingLabel = melodyLoadingText,
+            unavailableLabel = melodyUnavailable,
+            melodies = melodies,
+            selected = selectedMelody,
+            loading = melodyLoading,
+            error = melodyError,
+            onRefresh = timerViewModel::loadMelodies,
+            onSelect = { melody -> timerViewModel.selectMelody(melody.id) },
+        )
+    }
+}
+
+@Composable
+private fun MelodyPicker(
+    label: String,
+    pickLabel: String,
+    refreshLabel: String,
+    loadingLabel: String,
+    unavailableLabel: String,
+    melodies: List<Melody>,
+    selected: Melody?,
+    loading: Boolean,
+    error: String?,
+    onRefresh: () -> Unit,
+    onSelect: (Melody) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    androidx.compose.foundation.layout.Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+        )
+
+
+        Row() {
+            OutlinedButton(onClick = { expanded = true }) {
+                val selectedText = selected?.let { "${it.title} - ${it.artist}" } ?: pickLabel
+                Text(text = selectedText)
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                melodies.take(12).forEach { melody ->
+                    DropdownMenuItem(
+                        text = { Text("${melody.title} - ${melody.artist}") },
+                        onClick = {
+                            onSelect(melody)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+
+        OutlinedButton(onClick = onRefresh) {
+            Text(text = if (loading) loadingLabel else refreshLabel)
+        }
+
+        if (error != null) {
+            Text(
+                text = "$unavailableLabel: $error",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }
