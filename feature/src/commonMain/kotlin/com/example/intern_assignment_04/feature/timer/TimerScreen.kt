@@ -159,23 +159,12 @@ fun TimerScreen(
             contentAlignment = Alignment.Center,
         ) {
             if (showPicker) {
-                Text(
-                    text = titleSetTime,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 4.dp),
-                )
-
-                TimePicker(state = pickerState)
-
                 Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
+                    TimePicker(state = pickerState)
+
                     SecondsField(
                         secondsInput = secondsInput,
                         onSecondsInputChange = { input ->
@@ -282,6 +271,14 @@ private fun MelodyPicker(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    fun String.truncate(maxLength: Int): String {
+        return if (this.length > maxLength) {
+            this.take(maxLength) + "..."
+        } else {
+            this
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -292,7 +289,7 @@ private fun MelodyPicker(
         ) {
             OutlinedButton(onClick = { expanded = true }) {
                 val selectedText = selected?.let { "${it.title} - ${it.artist}" } ?: pickLabel
-                Text(text = selectedText)
+                Text(text = selectedText.truncate(30))
             }
 
             DropdownMenu(
