@@ -68,7 +68,7 @@ fun StopwatchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         TimeDisplay(
@@ -79,7 +79,7 @@ fun StopwatchScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 60.dp),
-            fontSize = 72.sp,
+            fontSize = 70.sp,
         )
 
         Row(
@@ -202,31 +202,31 @@ private fun LapRow(
     ) {
         Text(text = lapLabel)
         Text(
-            text = formatMillisWithCentiseconds(lap.lapDurationMillis),
+            text = formatMillisWithMilliseconds(lap.lapDurationMillis),
             color = lapTimeColor,
         )
     }
 }
 
-/** Собирает подпись времени секундомера в формате MM:SS.CC. */
+/** Собирает подпись времени секундомера в формате MM:SS.mmm. */
 private fun buildStopwatchTimeLabel(
     base: String,
     elapsedMillis: Long,
 ): String {
-    val centiseconds = ((elapsedMillis % 1000L) / 10L)
+    val milliseconds = (elapsedMillis % 1000L)
         .toString()
-        .padStart(2, '0')
+        .padStart(3, '0')
 
-    return "$base.$centiseconds"
+    return "$base.$milliseconds"
 }
 
-/** Форматирует миллисекунды круга в строку MM:SS.CC. */
-private fun formatMillisWithCentiseconds(millis: Long): String {
+/** Форматирует миллисекунды круга в строку MM:SS.mmm. */
+private fun formatMillisWithMilliseconds(millis: Long): String {
     val clamped = millis.coerceAtLeast(0L)
     val totalSeconds = clamped / 1000L
     val minutes = (totalSeconds / 60L).toString().padStart(2, '0')
     val seconds = (totalSeconds % 60L).toString().padStart(2, '0')
-    val centiseconds = ((clamped % 1000L) / 10L).toString().padStart(2, '0')
+    val milliseconds = (clamped % 1000L).toString().padStart(3, '0')
 
-    return "$minutes:$seconds.$centiseconds"
+    return "$minutes:$seconds.$milliseconds"
 }
