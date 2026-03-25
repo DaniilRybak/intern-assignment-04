@@ -10,6 +10,14 @@ Kotlin Multiplatform-приложение с двумя экранами:
 - `:model` — доменные состояния и интерфейсы,
 - `:feature` — UI, ViewModel и use-case.
 
+## 🛠 Технологический стек
+- Kotlin Multiplatform
+- Jetpack Compose Multiplatform
+- Koin (DI)
+- Kotlinx Coroutines (StateFlow, viewModelScope)
+- Kotlinx Serialization
+- Ktor Client
+
 ## 2.1 Скриншоты IOS
 <img width="331" height="710" alt="Снимок экрана 2026-03-25 в 10 46 35" src="https://github.com/user-attachments/assets/24ed9bcb-ccba-4da5-98d2-c1b6a4b94db4" />
 <img width="330" height="711" alt="Снимок экрана 2026-03-25 в 10 46 44" src="https://github.com/user-attachments/assets/3c1d35bc-c79b-4a0b-950f-1c1518e39140" />
@@ -52,6 +60,6 @@ Kotlin Multiplatform-приложение с двумя экранами:
 Открой папку `iosApp` в Xcode и запусти приложение на симуляторе.
 
 ## 6. Использованные ИИ-инструменты
-- GitHub Copilot: ChatGPT, Claude, Gemini (помощь в генерации/рефакторинге кода)
-- QWEN 3.5 (Планирование/ревью контрольныъ точек)
+- GitHub Copilot: ChatGPT, Claude, Gemini (помощь в генерации/рефакторинге кода/аудит)
+- QWEN 3.5 (Планирование/ревью контрольныъ точек/аудит)
 - Grok (Планирование/ревью контрольныъ точек)
